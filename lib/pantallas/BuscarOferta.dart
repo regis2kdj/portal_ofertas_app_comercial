@@ -13,6 +13,10 @@ class BuscarOferta extends StatefulWidget {
 }
 
 class _BuscarOfertaState extends State<BuscarOferta> {
+
+  GlobalKey<FormState> keyForm = new GlobalKey();
+  TextEditingController  numOferta = new TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -34,7 +38,7 @@ class _BuscarOfertaState extends State<BuscarOferta> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title, TextEditingController field, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -48,6 +52,7 @@ class _BuscarOfertaState extends State<BuscarOferta> {
             height: 10,
           ),
           TextField(
+              controller: field,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -61,7 +66,12 @@ class _BuscarOfertaState extends State<BuscarOferta> {
   Widget _formularioWidget() {
     return Column(
       children: <Widget>[
-        _entryField("# de oferta"),
+
+         new Form(
+          key: keyForm,
+          child: _entryField("# de oferta",numOferta),
+        ),
+
       ],
     );
   }
@@ -71,6 +81,9 @@ class _BuscarOfertaState extends State<BuscarOferta> {
     return InkWell(
       onTap: () {
         //ACCION DE BUSCAR OFERTA
+        if (keyForm.currentState.validate()) {
+          print("# de Oferta: ${numOferta.text}");
+        }
         //Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta()))
       },
 

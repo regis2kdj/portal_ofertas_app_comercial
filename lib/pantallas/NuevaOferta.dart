@@ -13,6 +13,13 @@ class NuevaOferta extends StatefulWidget {
 }
 
 class _NuevaOfertaState extends State<NuevaOferta> {
+
+  GlobalKey<FormState> keyForm = new GlobalKey();
+  TextEditingController  titulo = new TextEditingController();
+  TextEditingController  descripcion = new TextEditingController();
+  TextEditingController  categoria = new TextEditingController();
+  TextEditingController  url = new TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -39,6 +46,12 @@ class _NuevaOfertaState extends State<NuevaOferta> {
     return InkWell(
       onTap: () {
         //ACCION DE CREAR NUEVA OFERTA QR
+        if (keyForm.currentState.validate()) {
+          print("Nombre de la Oferta: ${titulo.text}");
+          print("Descripcion: ${descripcion.text}");
+          print("Categoria: ${categoria.text}");
+          print("URL: ${url.text}");
+        }
         //Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta()))
       },
 
@@ -83,7 +96,7 @@ class _NuevaOfertaState extends State<NuevaOferta> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title, TextEditingController field, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -97,6 +110,7 @@ class _NuevaOfertaState extends State<NuevaOferta> {
             height: 10,
           ),
           TextField(
+              controller: field,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -107,13 +121,23 @@ class _NuevaOfertaState extends State<NuevaOferta> {
     );
   }
 
+
   Widget _formularioWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Titulo"),
-        _entryField("Descripción de la oferta"),
-        _entryField("Categoría"),
-        _entryField("URL de imagen"),
+
+        new Form(
+          key: keyForm,
+          child: Column(
+              children: <Widget>[
+                _entryField("Titulo",titulo),
+                _entryField("Descripción de la oferta",descripcion),
+                _entryField("Categoría",categoria),
+                _entryField("URL de imagen",url),
+            ],
+          )
+        ),
+
       ],
     );
   }

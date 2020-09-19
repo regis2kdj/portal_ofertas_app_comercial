@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'widget/BezierContainer.dart';
 import 'package:portal_ofertas_app_comercial/pantallas/InicioSesion.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/LeerQR.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/BuscarOferta.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/NuevaOferta.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/ListarOfertas.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MenuPrincipal extends StatefulWidget {
@@ -88,7 +92,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-          text: 'Ofertas App - Comercial',
+          text: 'Ofertas App - Menu Principal',
           style: GoogleFonts.portLligatSans(
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 30,
@@ -114,7 +118,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => InicioSesion())), // needed
+                    context, MaterialPageRoute(builder: (context) => LeerQR())), // needed
                 child: Image.asset(
                   "images/qr_code_scanner.png",
                   width: 140,
@@ -124,7 +128,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               ),
             ),
             Text(
-              'Scan QR',
+              'Leer QR',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ],
@@ -148,7 +152,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => InicioSesion())), // needed
+                    context, MaterialPageRoute(builder: (context) => BuscarOferta())), // needed
                 child: Image.asset(
                   "images/find.png",
                   width: 140,
@@ -183,7 +187,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => InicioSesion())), // needed
+                    context, MaterialPageRoute(builder: (context) => NuevaOferta())), // needed
                 child: Image.asset(
                   "images/new_offer.png",
                   width: 140,
@@ -218,7 +222,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => InicioSesion())), // needed
+                    context, MaterialPageRoute(builder: (context) => ListarOfertas())), // needed
                 child: Image.asset(
                   "images/list_all.png",
                   width: 140,

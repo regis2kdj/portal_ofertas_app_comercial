@@ -222,7 +222,7 @@ class _InicioSesionState extends State<InicioSesion> {
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'Comercial',
+              text: 'Inicie Sesión',
               style: TextStyle(color: Color(0xff01579b), fontSize: 30),
             ),
           ]),

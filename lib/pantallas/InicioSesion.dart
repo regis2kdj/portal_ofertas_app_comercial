@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portal_ofertas_app_comercial/pantallas/RegistroUsuario.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/MenuPrincipal.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'widget/bezierContainer.dart';
@@ -60,7 +61,12 @@ class _InicioSesionState extends State<InicioSesion> {
   }
 
   Widget _submitButton() {
-    return Container(
+    return InkWell(
+        onTap: () {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MenuPrincipal()));
+    },
+    child: Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
@@ -81,6 +87,7 @@ class _InicioSesionState extends State<InicioSesion> {
         'Entrar',
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
+    )
     );
   }
 
@@ -202,7 +209,7 @@ class _InicioSesionState extends State<InicioSesion> {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-          text: 'Portal',
+          text: 'Ofertas App',
           style: GoogleFonts.portLligatSans(
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 30,
@@ -211,11 +218,11 @@ class _InicioSesionState extends State<InicioSesion> {
           ),
           children: [
             TextSpan(
-              text: 'de',
+              text: '-',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'Ofertas-UTP-IS',
+              text: 'Comercial',
               style: TextStyle(color: Color(0xff01579b), fontSize: 30),
             ),
           ]),

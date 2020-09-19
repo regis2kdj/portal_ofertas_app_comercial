@@ -34,7 +34,7 @@ class _BienvenidaState extends State<Bienvenida> {
             ],
             color: Colors.white),
         child: Text(
-          'Login',
+          'Iniciar Sesión',
           style: TextStyle(fontSize: 20, color: Color(0xff01579b)),
         ),
       ),
@@ -95,7 +95,7 @@ class _BienvenidaState extends State<Bienvenida> {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-          text: 'Portal',
+          text: 'Ofertas App',
           style: GoogleFonts.portLligatSans(
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 30,
@@ -104,11 +104,11 @@ class _BienvenidaState extends State<Bienvenida> {
           ),
           children: [
             TextSpan(
-              text: 'de',
+              text: '-',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'Ofertas-UTP-IS',
+              text: 'Comercial',
               style: TextStyle(color: Colors.white, fontSize: 30),
             ),
           ]),

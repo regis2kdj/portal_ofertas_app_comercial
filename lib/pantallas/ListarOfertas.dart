@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'widget/BezierContainer.dart';
-import 'package:portal_ofertas_app_comercial/pantallas/MenuPrincipal.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+
+import 'package:intl/intl.dart';
+import 'dart:convert' show utf8;
+import '../integraciones/IntegrationService.dart';
 
 class ListarOfertas extends StatefulWidget {
   ListarOfertas({Key key, this.title}) : super(key: key);
@@ -40,41 +43,6 @@ class _ListarOfertasState extends State<ListarOfertas> {
   }
 
 
-  Widget _submitButton() {
-    return InkWell(
-      onTap: () {
-        //ACCION DE LISTAR TODAS LAS OFERTAS
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta()))
-      },
-
-      child: Container(
-        width: MediaQuery
-            .of(context)
-            .size
-            .width,
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xffbdbdbd), Color(0xff01579b)])),
-        child: Text(
-          'Listar todas las Ofertas',
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
 
   Widget _title() {
     return RichText(
@@ -96,26 +64,6 @@ class _ListarOfertasState extends State<ListarOfertas> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Lista de todas las Ofertas"),
-      ),
-      body: FutureBuilder<List<Photo>>(
-        future: fetchPhotos(http.Client()),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-
-          return snapshot.hasData
-              ? PhotosList(photos: snapshot.data)
-              : Center(child: CircularProgressIndicator());
-        },
-      ),
-    );
-  }
-
-
-  @override
-  Widget build2(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Container(
@@ -127,29 +75,23 @@ class _ListarOfertasState extends State<ListarOfertas> {
               right: -MediaQuery.of(context).size.width * .4,
               child: BezierContainer(),
             ),
+            SizedBox(height: height * .2),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: height * .2),
-                    _title(),
-                    SizedBox(
-                      height: 50,
-                    ),
+              child: FutureBuilder<List<Producto>>(
+                          future: obtenerProductos(),
+                          //sets the getQuote method as the expected Future
+                          builder: (context, snapshot) {
 
-                    //_listaWidget(),
+                            if (snapshot.hasError) {
+                              print(snapshot.error);
+                            }
 
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _submitButton(), //boton submit
-                    SizedBox(height: height * .14),
-                  ],
-                ),
-              ),
+                            return snapshot.hasData
+                                ? ProductosLista(productos: snapshot.data)
+                                : Center(child: CircularProgressIndicator());
+                          }
+                      ),
             ),
             Positioned(top: 40, left: 0, child: _backButton()),
           ],
@@ -159,98 +101,23 @@ class _ListarOfertasState extends State<ListarOfertas> {
   }
 }
 
+//Obtener todos los productos
+Future<List<Producto>> obtenerProductos() async {
+  String url = 'http://3.83.230.246/productos.php';
+  final response = await http.get(url, headers: {"Accept": "application/json"});
 
-//***************************************************************************************************************************
-//Seccion Lectura de JSON de servicio Rest
+  return compute(parseProductos,response.bodyBytes);
+}
 
-Future<List<Photo>> fetchPhotos(http.Client client) async {
-  final response =
-  await client.get('https://jsonplaceholder.typicode.com/photos');
+//Obtener todos los productos - estructurar formato json
+List<Producto> parseProductos(List<int> responseBody) {
+  String decodeData = utf8.decode(responseBody);
 
-  // Use the compute function to run parsePhotos in a separate isolate.
-  return compute(parsePhotos, response.body);
+  final parsed = jsonDecode(decodeData).cast<Map<String, dynamic>>();
+
+  return parsed.map<Producto>((json) => Producto.fromJson(json)).toList();
 }
 
 
-// A function that converts a response body into a List<Photo>.
-List<Photo> parsePhotos(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
 
-  return parsed.map<Photo>((json) => Photo.fromJson(json)).toList();
-}
 
-class Photo {
-  final int albumId;
-  final int id;
-  final String title;
-  final String url;
-  final String thumbnailUrl;
-
-  Photo({this.albumId, this.id, this.title, this.url, this.thumbnailUrl});
-
-  factory Photo.fromJson(Map<String, dynamic> json) {
-    return Photo(
-      albumId: json['albumId'] as int,
-      id: json['id'] as int,
-      title: json['title'] as String,
-      url: json['url'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String,
-    );
-  }
-}
-
-class MyAppJSONList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final appTitle = 'Isolate Demo';
-
-    return MaterialApp(
-      title: appTitle,
-      home: MyHomePage(title: appTitle),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  final String title;
-
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: FutureBuilder<List<Photo>>(
-        future: fetchPhotos(http.Client()),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-
-          return snapshot.hasData
-              ? PhotosList(photos: snapshot.data)
-              : Center(child: CircularProgressIndicator());
-        },
-      ),
-    );
-  }
-}
-
-class PhotosList extends StatelessWidget {
-  final List<Photo> photos;
-
-  PhotosList({Key key, this.photos}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-      itemCount: photos.length,
-      itemBuilder: (context, index) {
-        return Image.network(photos[index].thumbnailUrl);
-      },
-    );
-  }
-}

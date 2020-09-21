@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'widget/BezierContainer.dart';
-import 'package:portal_ofertas_app_comercial/pantallas/MenuPrincipal.dart';
+import 'package:portal_ofertas_app_comercial/pantallas/VerOferta.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+
+import 'package:intl/intl.dart';
+import 'dart:convert' show utf8;
+import '../integraciones/IntegrationService.dart';
 
 class BuscarOferta extends StatefulWidget {
   BuscarOferta({Key key, this.title}) : super(key: key);
@@ -76,15 +85,26 @@ class _BuscarOfertaState extends State<BuscarOferta> {
     );
   }
 
-
   Widget _submitButton() {
     return InkWell(
       onTap: () {
         //ACCION DE BUSCAR OFERTA
         if (keyForm.currentState.validate()) {
           print("# de Oferta: ${numOferta.text}");
+
         }
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta()))
+        final datosApp = DatosApp(idOferta:numOferta.text);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta(datosApp: datosApp)));
+
+        /*
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>; InfoScreen(idArtiste: data[index]._id),
+              ),
+          );
+          */
+
       },
 
       child: Container(

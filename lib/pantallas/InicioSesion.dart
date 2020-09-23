@@ -5,6 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'widget/bezierContainer.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import '../integraciones/IntegrationService.dart';
+
 class InicioSesion extends StatefulWidget {
   InicioSesion({Key key, this.title}) : super(key: key);
 
@@ -15,6 +20,15 @@ class InicioSesion extends StatefulWidget {
 }
 
 class _InicioSesionState extends State<InicioSesion> {
+
+  String userID="";
+  String _invalidUserMessage="";
+
+  GlobalKey<FormState> keyForm = new GlobalKey();
+  TextEditingController  usr = new TextEditingController();
+  TextEditingController  pwd = new TextEditingController();
+
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -36,7 +50,7 @@ class _InicioSesionState extends State<InicioSesion> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title, TextEditingController field, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -50,6 +64,7 @@ class _InicioSesionState extends State<InicioSesion> {
             height: 10,
           ),
           TextField(
+              controller: field,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -60,12 +75,43 @@ class _InicioSesionState extends State<InicioSesion> {
     );
   }
 
+
+  authenticateUser(String usr, String pwd)  {
+    String myurl = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
+    http.get(myurl, headers: {'Accept': 'application/json'}).then((response) {
+
+      try {
+        userID=ValidarUsuario.fromJson(json.decode(utf8.decode(response.bodyBytes))).ID;
+        _invalidUserMessage="";
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MenuPrincipal()));
+      }
+      on Exception catch (_) {
+        _invalidUserMessage="Nombre de usuario o contraseña incorrectos";
+        userID = "";
+      }
+    }
+    );
+
+  }
+
+
   Widget _submitButton() {
+
     return InkWell(
         onTap: () {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MenuPrincipal()));
+
+          if (keyForm.currentState.validate()) {
+            print("Usuario: ${usr.text}");
+            print("Contraseña: ${pwd.text}");
+          }
+
+          setState(() {
+              authenticateUser(usr.text, pwd.text);
+          });
     },
+
     child: Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 15),
@@ -83,11 +129,13 @@ class _InicioSesionState extends State<InicioSesion> {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [Color(0xffbdbdbd), Color(0xff01579b)])),
+
       child: Text(
         'Entrar',
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
     )
+
     );
   }
 
@@ -232,8 +280,16 @@ class _InicioSesionState extends State<InicioSesion> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Correo/Username"),
-        _entryField("Contrasena", isPassword: true),
+
+        new Form(
+          key: keyForm,
+          child:  Column(
+            children: <Widget>[
+              _entryField("Correo/Username",usr),
+              _entryField("Contraseña",pwd, isPassword: true),
+            ],
+          )
+        ),
       ],
     );
   }
@@ -265,8 +321,15 @@ class _InicioSesionState extends State<InicioSesion> {
                       _submitButton(),
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.centerRight,
-                        child: Text('Olvidaste tu Clave?',
+                        alignment: Alignment.center,
+                        child: Text(_invalidUserMessage,
+                            style: TextStyle(color: Colors.red,
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        alignment: Alignment.center,
+                        child: Text('¿Olvidaste tu Clave?',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w500)),
                       ),
@@ -284,3 +347,26 @@ class _InicioSesionState extends State<InicioSesion> {
         ));
   }
 }
+
+  Future<ValidarUsuario> validarUsuario(String usr, String pwd) async {
+    String url = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
+
+    final response = await http.get(
+        url, headers: {"Accept": "application/json"});
+
+    if (response.statusCode == 200) {
+      debugPrint("status 200");
+      debugPrint(
+          ValidarUsuario.fromJson(json.decode(utf8.decode(response.bodyBytes)))
+              .toString());
+      return ValidarUsuario.fromJson(
+          json.decode(utf8.decode(response.bodyBytes)));
+    }
+    else {
+      throw Exception('Usuario/Contraseña Inconrrectos');
+    }
+  }
+
+
+
+

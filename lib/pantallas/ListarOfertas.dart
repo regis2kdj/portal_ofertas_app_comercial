@@ -75,9 +75,25 @@ class _ListarOfertasState extends State<ListarOfertas> {
               right: -MediaQuery.of(context).size.width * .4,
               child: BezierContainer(),
             ),
-            SizedBox(height: height * .2),
+
+
+              RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      text: 'Lista de todas las Ofertas',
+                      style: GoogleFonts.portLligatSans(
+                        textStyle: Theme.of(context).textTheme.display1,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xff01579b),
+                      )
+                  )
+              ),
+
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+              //padding: EdgeInsets.only(top: 20,left:20, right: 20),
+              margin: EdgeInsets.all(10),
               child: FutureBuilder<List<Producto>>(
                           future: obtenerProductos(),
                           //sets the getQuote method as the expected Future
@@ -93,6 +109,9 @@ class _ListarOfertasState extends State<ListarOfertas> {
                           }
                       ),
             ),
+
+
+
             Positioned(top: 40, left: 0, child: _backButton()),
           ],
         ),

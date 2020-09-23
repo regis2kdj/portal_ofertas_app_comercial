@@ -128,7 +128,19 @@ class _VerOfertaState extends State<VerOferta> {
                                   SizedBox(
                                     height: 120,
                                   ),
-                                  Text("Ver Oferta # : ${datosApp.idOferta}",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold)),
+
+                                  RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                          text: 'Oferta # : ${datosApp.idOferta}',
+                                          style: GoogleFonts.portLligatSans(
+                                            textStyle: Theme.of(context).textTheme.display1,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xff01579b),
+                                          )
+                                      )
+                                  ),
 
                                   SizedBox(
                                     height: 5,

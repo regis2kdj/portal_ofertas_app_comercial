@@ -94,3 +94,33 @@ class DatosApp {
   DatosApp({this.idOferta});
 }
 
+class SesionApp {
+  String username;
+  SesionApp({this.username});
+}
+
+//clase para el servicio validate desde woocommerce
+class ValidarUsuario {
+  final String ID;
+  final String user_login;
+  final String user_pass;
+  final String user_email;
+  final String user_nicename;
+  final String user_url;
+
+  ValidarUsuario({this.ID, this.user_login, this.user_pass, this.user_email,this.user_nicename,this.user_url});
+
+  factory ValidarUsuario.fromJson(Map<String, dynamic> json) {
+    return ValidarUsuario(
+        ID: json['ID'].toString(),
+        user_login: json['user_login'],
+        user_pass : json['user_pass'],
+        user_email: json['user_email'],
+        user_nicename: json['user_nicename'].toString(),
+        user_url: json['user_url']
+
+    );
+  }
+}
+
+

@@ -16,7 +16,6 @@ import '../integraciones/IntegrationService.dart';
     final DatosApp datosApp;
 
     VerOferta({Key key, this.title, @required this.datosApp}) : super(key: key);
-  //  VerOferta({Key key, this.title, @required ofertaID}) : super(key: key);
 
   final String title;
 

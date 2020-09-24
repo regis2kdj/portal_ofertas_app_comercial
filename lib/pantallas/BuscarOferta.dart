@@ -96,15 +96,6 @@ class _BuscarOfertaState extends State<BuscarOferta> {
         final datosApp = DatosApp(idOferta:numOferta.text);
         Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta(datosApp: datosApp)));
 
-        /*
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>; InfoScreen(idArtiste: data[index]._id),
-              ),
-          );
-          */
-
       },
 
       child: Container(

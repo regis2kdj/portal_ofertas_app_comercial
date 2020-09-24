@@ -3,6 +3,11 @@ import 'widget/BezierContainer.dart';
 import 'package:portal_ofertas_app_comercial/pantallas/MenuPrincipal.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import '../integraciones/IntegrationService.dart';
+
 class NuevaOferta extends StatefulWidget {
   NuevaOferta({Key key, this.title}) : super(key: key);
 
@@ -14,11 +19,14 @@ class NuevaOferta extends StatefulWidget {
 
 class _NuevaOfertaState extends State<NuevaOferta> {
 
+  String _mensajeResultado="";
+  MaterialColor _colorMensaje;
+
   GlobalKey<FormState> keyForm = new GlobalKey();
   TextEditingController  titulo = new TextEditingController();
   TextEditingController  descripcion = new TextEditingController();
   TextEditingController  categoria = new TextEditingController();
-  TextEditingController  url = new TextEditingController();
+  TextEditingController  precio = new TextEditingController();
 
   Widget _backButton() {
     return InkWell(
@@ -41,6 +49,61 @@ class _NuevaOfertaState extends State<NuevaOferta> {
     );
   }
 
+  void _actualizadDatosForm(String nuevoMensaje, MaterialColor newColor) {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _mensajeResultado=nuevoMensaje;
+      _colorMensaje=newColor;
+    });
+  }
+
+
+  void _limpiarCampos(){
+
+    if (keyForm.currentState.validate()) {
+      titulo.text="";
+      descripcion.text="";
+      categoria.text="";
+      precio.text="";
+
+      print("Nombre de la Oferta: ${titulo.text}");
+      print("Descripcion: ${descripcion.text}");
+      print("Categoria: ${categoria.text}");
+      print("Precio: ${precio.text}");
+    }
+
+  }
+
+  crearOferta(String nombre, String precio, String descripcion) async {
+      try {
+        final http.Response response = await http.post(
+          'http://3.83.230.246/crearProducto.php',
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'nombre': nombre,
+            'precio': precio,
+            'descripcion': descripcion,
+          }),
+        );
+        debugPrint(response.statusCode.toString());
+        if (response.statusCode == 200) {
+          _actualizadDatosForm("Oferta creada Satisfactoriamente",Colors.green);
+          _limpiarCampos();
+        } else {
+          _actualizadDatosForm("Error al crear la oferta",Colors.red);
+        }
+      }
+      on Exception catch (_) {
+        _actualizadDatosForm("Excepción al integrar con ofertas",Colors.red);
+      }
+    }
+
 
   Widget _submitButton() {
     return InkWell(
@@ -50,10 +113,11 @@ class _NuevaOfertaState extends State<NuevaOferta> {
           print("Nombre de la Oferta: ${titulo.text}");
           print("Descripcion: ${descripcion.text}");
           print("Categoria: ${categoria.text}");
-          print("URL: ${url.text}");
+          print("Precio: ${precio.text}");
         }
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta()))
-      },
+        //crearOferta(titulo.text,precio.text,descripcion.text);
+        crearOferta("Paga 2 almuerzos por el precio de 1","20.00","Ven al restaurante y come 2 deliciosos almuerzos por el precio de 1. Precio regular 40.00");
+        },
 
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -133,7 +197,7 @@ class _NuevaOfertaState extends State<NuevaOferta> {
                 _entryField("Titulo",titulo),
                 _entryField("Descripción de la oferta",descripcion),
                 _entryField("Categoría",categoria),
-                _entryField("URL de imagen",url),
+                _entryField("Precio",precio),
             ],
           )
         ),
@@ -175,7 +239,16 @@ class _NuevaOfertaState extends State<NuevaOferta> {
                       height: 20,
                     ),
                     _submitButton(), //boton submit
-                    SizedBox(height: height * .14),
+                    SizedBox(height: 10),
+
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      alignment: Alignment.center,
+                      child: Text(_mensajeResultado,
+                          style: TextStyle(color: _colorMensaje,
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+
                   ],
                 ),
               ),
@@ -187,3 +260,6 @@ class _NuevaOfertaState extends State<NuevaOferta> {
     );
   }
 }
+
+
+

@@ -124,3 +124,21 @@ class ValidarUsuario {
 }
 
 
+//clase para el servicio crearProducto desde woocommerce
+class Oferta {
+  final String nombre;
+  final String precio;
+  final String descripcion;
+
+  Oferta({this.nombre, this.precio, this.descripcion});
+
+  factory Oferta.fromJson(Map<String, dynamic> json) {
+    return Oferta(
+        nombre: json['nombre'],
+        precio: json['precio'],
+        descripcion : json['descripcion'],
+    );
+  }
+}
+
+

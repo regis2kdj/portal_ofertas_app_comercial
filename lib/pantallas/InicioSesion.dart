@@ -75,20 +75,31 @@ class _InicioSesionState extends State<InicioSesion> {
     );
   }
 
+  void _actualizarMensaje(String nuevoMensaje) {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _invalidUserMessage=nuevoMensaje;
+    });
+  }
 
-  authenticateUser(String usr, String pwd)  {
+
+  authenticateUser(String usr, String pwd) async {
     String myurl = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
     http.get(myurl, headers: {'Accept': 'application/json'}).then((response) {
 
       try {
         userID=ValidarUsuario.fromJson(json.decode(utf8.decode(response.bodyBytes))).ID;
-        _invalidUserMessage="";
+        _actualizarMensaje("");
         Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => MenuPrincipal()));
       }
       on Exception catch (_) {
-        _invalidUserMessage="Nombre de usuario o contraseña incorrectos";
+        _actualizarMensaje("Nombre de usuario o contraseña incorrectos");
         userID = "";
       }
     }
@@ -108,7 +119,7 @@ class _InicioSesionState extends State<InicioSesion> {
           }
 
           setState(() {
-              authenticateUser(usr.text, pwd.text);
+              authenticateUser(usr.text.trim(), pwd.text.trim());
           });
     },
 
@@ -348,24 +359,6 @@ class _InicioSesionState extends State<InicioSesion> {
   }
 }
 
-  Future<ValidarUsuario> validarUsuario(String usr, String pwd) async {
-    String url = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
-
-    final response = await http.get(
-        url, headers: {"Accept": "application/json"});
-
-    if (response.statusCode == 200) {
-      debugPrint("status 200");
-      debugPrint(
-          ValidarUsuario.fromJson(json.decode(utf8.decode(response.bodyBytes)))
-              .toString());
-      return ValidarUsuario.fromJson(
-          json.decode(utf8.decode(response.bodyBytes)));
-    }
-    else {
-      throw Exception('Usuario/Contraseña Inconrrectos');
-    }
-  }
 
 
 

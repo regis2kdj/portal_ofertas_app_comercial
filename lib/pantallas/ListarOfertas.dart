@@ -94,7 +94,8 @@ class _ListarOfertasState extends State<ListarOfertas> {
               padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
               //padding: EdgeInsets.only(top: 20,left:20, right: 20),
               margin: EdgeInsets.all(10),
-              child: FutureBuilder<List<Producto>>(
+             /*
+                child: FutureBuilder<List<Producto>>(
                           future: obtenerProductos(),
                           //sets the getQuote method as the expected Future
                           builder: (context, snapshot) {
@@ -108,6 +109,22 @@ class _ListarOfertasState extends State<ListarOfertas> {
                                 : Center(child: CircularProgressIndicator());
                           }
                       ),
+              */
+              child: FutureBuilder<List<Ordenes>>(
+                  future: obtenerOrdenes(),
+                  //sets the getQuote method as the expected Future
+                  builder: (context, snapshot) {
+
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                    }
+
+                    return snapshot.hasData
+                        ? OrdenesLista(ordenes: snapshot.data)
+                        : Center(child: CircularProgressIndicator());
+                  }
+              ),
+
             ),
 
 
@@ -135,6 +152,23 @@ List<Producto> parseProductos(List<int> responseBody) {
   final parsed = jsonDecode(decodeData).cast<Map<String, dynamic>>();
 
   return parsed.map<Producto>((json) => Producto.fromJson(json)).toList();
+}
+
+//Obtener todos las ordenes
+Future<List<Ordenes>> obtenerOrdenes() async {
+  String url = 'http://3.83.230.246/ordenes.php';
+  final response = await http.get(url, headers: {"Accept": "application/json"});
+
+  return compute(parseOrdenes,response.bodyBytes);
+}
+
+//Obtener todos las ordenes - estructurar formato json
+List<Ordenes> parseOrdenes(List<int> responseBody) {
+  String decodeData = utf8.decode(responseBody);
+
+  final parsed = jsonDecode(decodeData).cast<Map<String, dynamic>>();
+
+  return parsed.map<Ordenes>((json) => Ordenes.fromJson(json)).toList();
 }
 
 

@@ -26,6 +26,12 @@ class _LeerQRState extends State<LeerQR> {
   ScanResult _scanResult;
   String _errorMessageQR="";
 
+  //final DatosApp datosApp;
+  String _mensajeResultado="";
+  MaterialColor _colorMensaje;
+  String _idOferta="";
+
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -83,9 +89,10 @@ class _LeerQRState extends State<LeerQR> {
   Widget _buttonsMenu_Redimir() {
     return InkWell(
       onTap: () {
-        //ACCION DE BUSCAR OFERTA
+        //ACCION DE REDIMIR OFERTA
 
-
+        _actualizadIDOferta(_scanResult.rawContent.toString());
+        redimirOferta(_idOferta);
 
       },
 
@@ -218,21 +225,29 @@ class _LeerQRState extends State<LeerQR> {
         title: Text('Leer Oferta por Codigo QR'),
       ),
       body: Center(
-          child:_scanResult==null?Text('Esperando datos de código'):Column(
+          child:
+          //_showOffer("597"),
+
+           _scanResult==null?Text('Esperando datos de código'):Column(
             children: [
-              Text('Contenido: ${_scanResult.rawContent}'),
-              Text('Formato: ${_scanResult.format.toString()}'),
+              //Text('Contenido: ${_scanResult.rawContent}'),
+              //Text('Formato: ${_scanResult.format.toString()}'),
               Text(_errorMessageQR),
 
               //_showOffer("529"),
-              _showOffer(_scanResult.format.toString()),
+
+              _showOffer(_scanResult.rawContent.toString()),
+
+              //_actualizadIDOferta(_scanResult.rawContent.toString()),
 
             ],
           )
+
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           _scanCode();
+
         },
         child: Icon(Icons.camera),
       ),
@@ -272,6 +287,54 @@ class _LeerQRState extends State<LeerQR> {
     }
   }
 
+  Future<Ordenes> obtenerOrden(String orden) async {
+    String url = 'http://3.83.230.246/ordenIndv.php?idOrden='+orden;
+
+    final response = await http.get(url, headers: {"Accept": "application/json"});
+
+    if (response.statusCode == 200) {
+
+     return Ordenes.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+
+    } else {
+      throw Exception('Orden no encontrada. Favor volver a intentar con un valor distinto');
+    }
+  }
+
+  redimirOferta(String orden) async {
+    try {
+      final http.Response response = await http.get(
+        'http://3.83.230.246/updateorden.php?idOrden='+orden,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+debugPrint("http://3.83.230.246/updateorden.php?idOrden="+orden);
+      debugPrint(response.statusCode.toString());
+      if (response.statusCode == 200) {
+        _actualizadDatosForm("Oferta redimida Satisfactoriamente",Colors.green);
+      } else {
+        _actualizadDatosForm("Error al redimir la oferta",Colors.red);
+      }
+    }
+    on Exception catch (_) {
+      _actualizadDatosForm("Excepción al integrar con ofertas",Colors.red);
+    }
+  }
+
+  void _actualizadDatosForm(String nuevoMensaje, MaterialColor newColor) {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _mensajeResultado=nuevoMensaje;
+      _colorMensaje=newColor;
+
+    });
+  }
+
 
   //Eliminar etiquetas HTML en campo descripcion (asi viene de WooCommerce)
   String clearDesc(String desc) {
@@ -288,8 +351,9 @@ class _LeerQRState extends State<LeerQR> {
   }
 
   Widget _showOffer(String numOfertaQR) {
-    return  FutureBuilder<Producto>(
-                future: obtenerProducto(numOfertaQR),
+    return  FutureBuilder<Ordenes>(
+                //future: obtenerProducto(numOfertaQR),
+                future: obtenerOrden(numOfertaQR),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Center(
@@ -317,49 +381,64 @@ class _LeerQRState extends State<LeerQR> {
                           SizedBox(
                             height: 5,
                           ),
-                          Text("Oferta: ${snapshot.data.name}"),
+                          //Text("Oferta: ${snapshot.data.name}"),
 
                           SizedBox(
                             height: 5,
                           ),
-                          Text("Descripción de la oferta: ${clearDesc(snapshot.data.description)}"),
+                          //Text("Descripción de la oferta: ${clearDesc(snapshot.data.description)}"),
+                          Text("Descripción de la oferta: ${snapshot.data.name}"),
 
                           SizedBox(
                             height: 5,
                           ),
-                          Text("Precio Regular: ${snapshot.data.regular_price}"),
+                          //Text("Precio Regular: ${snapshot.data.regular_price}"),
+                          Text("Comercio: ${snapshot.data.company}"),
 
                           SizedBox(
                             height: 5,
                           ),
-                          Text("Precio de venta: ${snapshot.data.sale_price}"),
+                          Text("Precio de venta: ${snapshot.data.total}"),
+                          //Text("Precio de venta: ${snapshot.data.sale_price}"),
 
                           SizedBox(
                             height: 5,
                           ),
-                          Text("Categoría: ${snapshot.data.categories}"),
-
-                          SizedBox(
-                            height: 5,
-                          ),
-
-                          Image.network(snapshot.data.imageURL,
-                              width: 300,
-                              height: 200,
-                                scale: 0.9,
-                          ),
+                          //Text("Categoría: ${snapshot.data.categories}"),
+                          Text("Comprado por: ${snapshot.data.first_name} ${snapshot.data.last_name}"),
 
                           SizedBox(
                             height: 5,
                           ),
 
-                          Text("Estado: ${snapshot.data.status}"),
+                          _showProductImage(snapshot.data.product_id),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          //Text("Estado: ${snapshot.data.status}"),
+                          Text("E-mail del cliente: ${snapshot.data.email}"),
 
                           SizedBox(
                             height: 15,
                           ),
 
                           _buttonsMenu_Redimir(),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+
+
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.center,
+                            child: Text(_mensajeResultado,
+                                style: TextStyle(color: _colorMensaje,
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                          ),
 
                         ],
                       ),
@@ -372,5 +451,48 @@ class _LeerQRState extends State<LeerQR> {
                 },
         );
   }
+
+
+
+  void _actualizadIDOferta(String nuevoIDoferta) {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _idOferta=nuevoIDoferta;
+
+    });
+  }
+
+  Widget _showProductImage(String numProd) {
+    return  FutureBuilder<Producto>(
+      future: obtenerProducto(numProd),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Center(
+            child: Column(
+
+              children: <Widget>[
+
+                          Image.network(snapshot.data.imageURL,
+                              width: 300,
+                              height: 200,
+                                scale: 0.9,
+                          ),
+
+              ],
+            ),
+          );
+        } else
+        if (snapshot.hasError) { //checks if the response throws an error
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },
+    );
+  }
+
 
 } //cierre clase

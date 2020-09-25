@@ -26,6 +26,9 @@ import '../integraciones/IntegrationService.dart';
 class _VerOfertaState extends State<VerOferta> {
 
   final DatosApp datosApp;
+  String _mensajeResultado="";
+  MaterialColor _colorMensaje;
+  String _idOferta="";
 
   _VerOfertaState(this.datosApp);
 
@@ -99,7 +102,7 @@ class _VerOfertaState extends State<VerOferta> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildOld(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Container(
@@ -205,4 +208,243 @@ class _VerOfertaState extends State<VerOferta> {
       ),
     );
   }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: Container(
+        height: height,
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              top: -MediaQuery.of(context).size.height * .15,
+              right: -MediaQuery.of(context).size.width * .4,
+              child: BezierContainer(),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: FutureBuilder<Ordenes>(
+                future: obtenerOrden(datosApp.idOferta),
+
+                //sets the getQuote method as the expected Future
+                builder: (context, snapshot) {
+                  if (snapshot
+                      .hasData) { //checks if the response returns valid data
+                    return Center(
+                      child: Column(
+                        children: <Widget>[
+
+                          SizedBox(
+                            height: 120,
+                          ),
+
+                          RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  text: 'Oferta # : ${datosApp.idOferta}',
+                                  style: GoogleFonts.portLligatSans(
+                                    textStyle: Theme.of(context).textTheme.display1,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xff01579b),
+                                  )
+                              )
+                          ),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text("Descripción de la oferta: ${snapshot.data.name}"),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text("Comercio: ${snapshot.data.company}"),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text("Precio de venta: ${snapshot.data.total}"),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text("Comprado por: ${snapshot.data.first_name} ${snapshot.data.last_name}"),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          _showProductImage(snapshot.data.product_id),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          Text("E-mail del cliente: ${snapshot.data.email}"),
+
+                          SizedBox(
+                            height: 15,
+                          ),
+
+                          _buttonsMenu_Redimir(),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.center,
+                            child: Text(_mensajeResultado,
+                                style: TextStyle(color: _colorMensaje,
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                          ),
+
+
+                        ],
+                      ),
+                    );
+                  } else
+                  if (snapshot.hasError) { //checks if the response throws an error
+                    return Text("${snapshot.error}");
+                  }
+                  return CircularProgressIndicator();
+                },
+              ),
+            ),
+
+            SizedBox(height: height * .14),
+
+            Positioned(top: 40, left: 0, child: _backButton()),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buttonsMenu_Redimir() {
+    return InkWell(
+      onTap: () {
+        //ACCION DE REDIMIR OFERTA
+
+        redimirOferta(datosApp.idOferta);
+
+      },
+
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xffbdbdbd), Color(0xff01579b)])),
+        child: Text(
+          'Redimir Oferta',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+
+  redimirOferta(String orden) async {
+    try {
+      final http.Response response = await http.get(
+        'http://3.83.230.246/updateorden.php?idOrden='+orden,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      debugPrint(response.statusCode.toString());
+      if (response.statusCode == 200) {
+        _actualizadDatosForm("Oferta redimida Satisfactoriamente",Colors.green);
+      } else {
+        _actualizadDatosForm("Error al redimir la oferta",Colors.red);
+      }
+    }
+    on Exception catch (_) {
+      _actualizadDatosForm("Excepción al integrar con ofertas",Colors.red);
+    }
+  }
+
+  void _actualizadDatosForm(String nuevoMensaje, MaterialColor newColor) {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _mensajeResultado=nuevoMensaje;
+      _colorMensaje=newColor;
+
+    });
+  }
+
+
+  Widget _showProductImage(String numProd) {
+    return  FutureBuilder<Producto>(
+      future: obtenerProducto(numProd),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Center(
+            child: Column(
+
+              children: <Widget>[
+
+                Image.network(snapshot.data.imageURL,
+                  width: 300,
+                  height: 200,
+                  scale: 0.9,
+                ),
+
+              ],
+            ),
+          );
+        } else
+        if (snapshot.hasError) { //checks if the response throws an error
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },
+    );
+  }
+
+
+
+
+  Future<Ordenes> obtenerOrden(String orden) async {
+    String url = 'http://3.83.230.246/ordenIndv.php?idOrden='+orden;
+
+    final response = await http.get(url, headers: {"Accept": "application/json"});
+
+    if (response.statusCode == 200) {
+
+      return Ordenes.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+
+    } else {
+      throw Exception('Orden no encontrada. Favor volver a intentar con un valor distinto');
+    }
+  }
+
+
+
 }

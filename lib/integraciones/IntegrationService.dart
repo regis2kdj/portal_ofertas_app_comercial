@@ -1,6 +1,11 @@
 import 'package:portal_ofertas_app_comercial/pantallas/VerOferta.dart';
 import 'package:flutter/material.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+
 class Producto {
   final String id;
   final String name;
@@ -140,5 +145,148 @@ class Oferta {
     );
   }
 }
+
+
+class Ordenes {
+
+  final String id;
+  final String first_name;
+  final String last_name;
+  final String company;
+  final String email;
+  final String name;
+  final String product_id;
+  final String total;
+
+  Ordenes({this.id, this.first_name,this.last_name,this.company,this.email,this.name,this.product_id,this.total});
+
+  factory Ordenes.fromJson(Map<String, dynamic> json) =>
+     Ordenes(
+        id: json['id'].toString(),
+        first_name: json['billing']['first_name'],
+        last_name: json['billing']['last_name'],
+        company: json['billing']['company'],
+        email: json['billing']['email'],
+        name: json['line_items'][0]['name'],
+        product_id: json['line_items'][0]['product_id'].toString(),
+        total: json['line_items'][0]['total'].toString()
+    );
+
+    Map<String, dynamic> toJson() => {
+      "id": id,
+      "first_name": first_name,
+      "last_name": last_name,
+      "company": company,
+      "email": email,
+      "name": name,
+      "product_id": product_id,
+      "total": total,
+
+    };
+
+  }
+
+
+class OrdenesLista extends StatelessWidget {
+  final List<Ordenes> ordenes;
+
+  OrdenesLista({Key key, this.ordenes}) : super(key: key);
+
+
+  Future<Producto> obtenerProducto(String producto) async {
+    String url = 'http://3.83.230.246/productoIndv.php?id='+producto;
+
+    final response = await http.get(url, headers: {"Accept": "application/json"});
+
+    if (response.statusCode == 200) {
+      return Producto.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+    } else {
+      throw Exception('Producto no encontrado. Favor volver a intentar con un valor distinto');
+    }
+  }
+
+  Widget _showProductImage(String numProd) {
+    return  FutureBuilder<Producto>(
+      future: obtenerProducto(numProd),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Center(
+            child: Column(
+
+              children: <Widget>[
+
+                Image.network(snapshot.data.imageURL,
+                  width: 100,
+                  height: 120,
+                  //scale: 0.9,
+                  fit:BoxFit.cover,
+                ),
+
+              ],
+            ),
+          );
+        } else
+        if (snapshot.hasError) { //checks if the response throws an error
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    return new GridView.count(
+      primary: true,
+      crossAxisCount: ((orientation == Orientation.portrait) ? 2 : 3),
+      childAspectRatio: 0.95,
+      children: List.generate(ordenes.length, (index) {
+        return new GestureDetector(
+
+          child:  Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              verticalDirection: VerticalDirection.down,
+              children: <Widget>[
+/*
+                new
+                  //Image.network(ordenes[index].imageURL,
+                  //Image.network("https://hipertextual.com/files/2019/04/hipertextual-samsung-galaxy-m20-2019238928.jpg",
+                  width: 50,
+                  height: 120,
+                  fit: BoxFit.cover,),
+                  */
+                _showProductImage(ordenes[index].product_id),
+                new Padding(
+                  padding: EdgeInsets.only(left: 10.0),
+                  child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      new Text(ordenes[index].name),
+                      new Text("Orden # "+ordenes[index].id,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      //new Text(producto.date_modified),
+                    ],
+                  ),
+                )
+              ]
+          ),
+
+          onTap: () {
+            debugPrint(ordenes[index].id);
+
+            final datosApp = DatosApp(idOferta:ordenes[index].id);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => VerOferta(datosApp: datosApp)));
+
+
+          },
+        );
+      }),
+    );
+  }
+
+}
+
 
 

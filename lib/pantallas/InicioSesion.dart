@@ -28,7 +28,6 @@ class _InicioSesionState extends State<InicioSesion> {
   TextEditingController  usr = new TextEditingController();
   TextEditingController  pwd = new TextEditingController();
 
-
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -120,6 +119,7 @@ class _InicioSesionState extends State<InicioSesion> {
 
           setState(() {
               authenticateUser(usr.text.trim(), pwd.text.trim());
+              //authenticateUser("usuario2020","12345678");
           });
     },
 

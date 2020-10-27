@@ -81,7 +81,7 @@ class _NuevaOfertaState extends State<NuevaOferta> {
   crearOferta(String nombre, String precio, String descripcion) async {
       try {
         final http.Response response = await http.post(
-          'http://3.83.230.246/crearProducto.php',
+          'http://3.89.251.29/crearProducto.php',
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

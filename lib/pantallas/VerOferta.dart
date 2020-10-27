@@ -59,7 +59,7 @@ class _VerOfertaState extends State<VerOferta> {
 
   //Obtener 1 solo producto
   Future<Producto> obtenerProducto(String producto) async {
-    String url = 'http://3.83.230.246/productoIndv.php?id='+producto;
+    String url = 'http://3.89.251.29/productoIndv.php?id='+producto;
 
     final response = await http.get(url, headers: {"Accept": "application/json"});
 
@@ -368,7 +368,7 @@ class _VerOfertaState extends State<VerOferta> {
   redimirOferta(String orden) async {
     try {
       final http.Response response = await http.get(
-        'http://3.83.230.246/updateorden.php?idOrden='+orden,
+        'http://3.89.251.29/updateorden.php?idOrden='+orden,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -432,7 +432,7 @@ class _VerOfertaState extends State<VerOferta> {
 
 
   Future<Ordenes> obtenerOrden(String orden) async {
-    String url = 'http://3.83.230.246/ordenIndv.php?idOrden='+orden;
+    String url = 'http://3.89.251.29/ordenIndv.php?idOrden='+orden;
 
     final response = await http.get(url, headers: {"Accept": "application/json"});
 

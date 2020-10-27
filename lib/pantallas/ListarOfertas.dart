@@ -139,7 +139,7 @@ class _ListarOfertasState extends State<ListarOfertas> {
 
 //Obtener todos los productos
 Future<List<Producto>> obtenerProductos() async {
-  String url = 'http://3.83.230.246/productos.php';
+  String url = 'http://3.89.251.29/productos.php';
   final response = await http.get(url, headers: {"Accept": "application/json"});
 
   return compute(parseProductos,response.bodyBytes);
@@ -156,7 +156,7 @@ List<Producto> parseProductos(List<int> responseBody) {
 
 //Obtener todos las ordenes
 Future<List<Ordenes>> obtenerOrdenes() async {
-  String url = 'http://3.83.230.246/ordenes.php';
+  String url = 'http://3.89.251.29/ordenes.php';
   final response = await http.get(url, headers: {"Accept": "application/json"});
 
   return compute(parseOrdenes,response.bodyBytes);

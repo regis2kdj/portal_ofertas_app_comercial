@@ -276,7 +276,7 @@ class _LeerQRState extends State<LeerQR> {
 
   //Obtener 1 solo producto
   Future<Producto> obtenerProducto(String producto) async {
-    String url = 'http://3.83.230.246/productoIndv.php?id='+producto;
+    String url = 'http://3.89.251.29/productoIndv.php?id='+producto;
 
     final response = await http.get(url, headers: {"Accept": "application/json"});
 
@@ -288,7 +288,7 @@ class _LeerQRState extends State<LeerQR> {
   }
 
   Future<Ordenes> obtenerOrden(String orden) async {
-    String url = 'http://3.83.230.246/ordenIndv.php?idOrden='+orden;
+    String url = 'http://3.89.251.29/ordenIndv.php?idOrden='+orden;
 
     final response = await http.get(url, headers: {"Accept": "application/json"});
 
@@ -304,12 +304,12 @@ class _LeerQRState extends State<LeerQR> {
   redimirOferta(String orden) async {
     try {
       final http.Response response = await http.get(
-        'http://3.83.230.246/updateorden.php?idOrden='+orden,
+        'http://3.89.251.29/updateorden.php?idOrden='+orden,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-debugPrint("http://3.83.230.246/updateorden.php?idOrden="+orden);
+debugPrint("http://3.89.251.29/updateorden.php?idOrden="+orden);
       debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         _actualizadDatosForm("Oferta redimida Satisfactoriamente",Colors.green);

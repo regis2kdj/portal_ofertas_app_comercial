@@ -87,7 +87,9 @@ class _InicioSesionState extends State<InicioSesion> {
 
 
   authenticateUser(String usr, String pwd) async {
-    String myurl = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
+    //String myurl = 'http://3.83.230.246/validate.php?username=' + usr + '&pass=' + pwd;
+    String myurl = 'http://3.89.251.29/validate.php?username=' + usr + '&pass=' + pwd;
+
     http.get(myurl, headers: {'Accept': 'application/json'}).then((response) {
 
       try {
